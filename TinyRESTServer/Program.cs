@@ -14,7 +14,6 @@ namespace TinyRESTServer
                 Hostname = "localhost",
                 PortNumber = 8080,
                 BasePath = "api",
-                UseSSL = false,
                 AllowCORS = true
             });
             server.HttpRequestStream.Subscribe(OnRequested);
