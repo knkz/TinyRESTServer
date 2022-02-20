@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Mime;
 using System.Text;
+using System.Text.Json;
 
 namespace TinyRESTServer
 {
@@ -11,7 +13,6 @@ namespace TinyRESTServer
         {
             var server = new HttpServer(new HttpServerConfigEntry()
             {
-                Hostname = "localhost",
                 PortNumber = 8080,
                 BasePath = "api",
                 AllowCORS = true
@@ -34,11 +35,13 @@ namespace TinyRESTServer
             // 暫定
             try
             {
-                byte[] response = Encoding.UTF8.GetBytes("にゃーん");
+                ResponseEntity res = new ResponseEntity() {IntParam = 5, StringParam = "Hoge"};
+                byte[] response = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(res));
                 StreamWriter writer = new StreamWriter(context.Response.OutputStream);
                 writer.BaseStream.Write(response, 0, response.Length);
                 writer.Flush();
 
+                context.Response.ContentType = "application/json";
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
             }
             catch (Exception)

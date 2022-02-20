@@ -33,6 +33,12 @@ namespace TinyRESTServer
         public HttpServer(HttpServerConfigEntry config)
         {
             _config = config;
+
+            if (string.IsNullOrEmpty(_config.Hostname) == true)
+            {
+                // ホスト名が指定されていなければすべてのホスト名を受け入れるようにする。
+                _config.Hostname = "+";
+            }
         }
 
         /// <summary>
@@ -43,12 +49,6 @@ namespace TinyRESTServer
         {
             WriteLog("Start HTTP Server...");
 
-            if (string.IsNullOrEmpty(_config.Hostname) == true)
-            {
-                WriteLog("Invalid Config 'HostName'.", LogLevel.Error);
-                return;
-            }
-
             _listener = new HttpListener();
 
             string tail = string.Empty;
@@ -58,7 +58,14 @@ namespace TinyRESTServer
             }
 
             _listener.Prefixes.Add($"http://{_config.Hostname}:{_config.PortNumber}/{_config.BasePath}{tail}");
-            _listener.Start();
+            try
+            {
+                _listener.Start();
+            }
+            catch (Exception e)
+            {
+                WriteLog($"{e.Message}", LogLevel.Error, e);
+            }
 
             ServiceTask(_listener).ContinueWith(t =>
             {
